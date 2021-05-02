@@ -72,7 +72,7 @@ class TwitterListener(tweepy.StreamListener):
                     result.add_metakey(self.name, url)
                     log.debug(f'uploaded {file_hash} to mwdb')
 
-    def on_status(self, tweet):
+    def upload_tweet(self, tweet):
         if not hasattr(tweet, 'retweeted_status') or self.config.getboolean(self.name, 'retweets') is True:
             tweet = self.api.get_status(tweet.id_str, tweet_mode='extended')
             tweet = {
@@ -87,6 +87,17 @@ class TwitterListener(tweepy.StreamListener):
                 self.mwdb_upload(file_hash, tweet['url'])
             if len(tweet['hashes']) > 0:
                 print(json.dumps(tweet, indent=4))
+
+    def twitter_search(self):
+        hashtags = self.config.get(self.name, 'hashtags').split(',')
+        ids = []
+        for hashtag in hashtags:
+            tweets = tweepy.Cursor(self.api.search, q=hashtag).items(self.config.getint(self.name, 'tweets_max'))
+            for tweet in tweets:
+                self.upload_tweet(tweet)
+
+    def on_status(self, tweet):
+        self.upload_tweet(tweet)
 
 class MWDBFeedsModule():
 
@@ -152,7 +163,8 @@ class MWDBFeedsModule():
                 stream.filter(
                     track=self.get_config_list('hashtags'),
                     follow=self.get_uids())
-            print("Hello World!")
+            search = TwitterListener(api=self.api, mwdb=self.mwdb, config=self.config)
+            search.twitter_search()
         except Exception as error:
             log.error(error)
             result['success'] = False
