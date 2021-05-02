@@ -167,9 +167,13 @@ class MWDBFeedsModule():
             if self.config.getboolean(self.name, 'stream') is True:
                 listener = TwitterListener(api=self.api, mwdb=self.mwdb, config=self.config)
                 stream = tweepy.Stream(self.auth, listener)
-                stream.filter(
-                    track=self.get_config_list('hashtags'),
-                    follow=self.get_uids())
+                while True:
+                    try:
+                        stream.filter(
+                            track=self.get_config_list('hashtags'),
+                            follow=self.get_uids())
+                    except Exception as error:
+                        log.error(error)
             search = TwitterListener(api=self.api, mwdb=self.mwdb, config=self.config)
             search.twitter_search()
         except Exception as error:
