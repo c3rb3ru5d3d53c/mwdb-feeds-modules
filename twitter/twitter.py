@@ -6,6 +6,8 @@ import tweepy
 import logging
 import hashlib
 import requests
+from functools import partial
+from multiprocessing import Pool
 
 log = logging.getLogger(__name__)
 
@@ -86,13 +88,20 @@ class TwitterListener(tweepy.StreamListener):
             for file_hash in tweet['hashes']:
                 self.mwdb_upload(file_hash, tweet['url'])
             if len(tweet['hashes']) > 0:
-                print(json.dumps(tweet, indent=4))
+                log.debug(json.dumps(tweet))
 
     def twitter_search(self):
+        # This needs to somehow be threaded, currently slow sawwe :'(
         hashtags = self.config.get(self.name, 'hashtags').split(',')
-        ids = []
         for hashtag in hashtags:
             tweets = tweepy.Cursor(self.api.search, q=hashtag).items(self.config.getint(self.name, 'tweets_max'))
+            for tweet in tweets:
+                self.upload_tweet(tweet)
+        for username in self.config.get(self.name, 'usernames').split(','):
+            tweets = self.api.user_timeline(
+                screen_name=username, 
+                count=self.config.getint(self.name, 'tweets_max'),
+                include_rts = self.config.getboolean(self.name, 'retweets'))
             for tweet in tweets:
                 self.upload_tweet(tweet)
 
