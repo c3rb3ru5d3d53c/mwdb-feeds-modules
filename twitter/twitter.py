@@ -6,8 +6,6 @@ import tweepy
 import logging
 import hashlib
 import requests
-from functools import partial
-from multiprocessing import Pool
 
 log = logging.getLogger(__name__)
 
