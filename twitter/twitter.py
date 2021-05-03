@@ -124,6 +124,7 @@ class MWDBFeedsModule():
             'consumer_secret',
             'access_token',
             'access_token_secret',
+            'wait_on_rate_limit',
             'enabled',
             'threshold',
             'usernames',
@@ -146,7 +147,7 @@ class MWDBFeedsModule():
         self.auth.set_access_token(
             self.config.get(self.name, 'access_token'),
             self.config.get(self.name, 'access_token_secret'))
-        self.api = tweepy.API(self.auth)
+        self.api = tweepy.API(self.auth, wait_on_rate_limit=self.config.getboolean(self.name, 'wait_on_rate_limit'))
 
     def get_uids(self):
         ids = []

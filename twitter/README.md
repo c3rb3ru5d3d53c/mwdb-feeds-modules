@@ -11,6 +11,7 @@ consumer_secret = <your-consumer-secret>
 access_token = <your-access-token>
 access_token_secret = <your-token-secret>
 threshold = 4
+wait_on_rate_limit = True
 usernames = <list-of-usernames-to-follow-comma-delimited>
 hashtags = <hashtags-to-follow-comma-delimited>
 vt_api_key = <your-virustotal-api-key>
