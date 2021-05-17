@@ -74,7 +74,7 @@ class MWDBFeedsModule():
             return False
         sha256 = hashlib.sha256(data).hexdigest()
         if self.mwdb.query_file(sha256, raise_not_found=False) is None:
-            log.debug(f'uploading {name}...')
+            log.debug(f'uploading {sha256}...')
             result = self.mwdb.upload_file(name=sha256, content=data)
             result.add_tag(self.tag)
             return True
